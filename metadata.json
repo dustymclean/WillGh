@@ -1,0 +1,8 @@
+{
+  "name": "Will's Place - Professional Photography Suite",
+  "description": "A high-end, sovereign business infrastructure for Will Grigsby's photography, featuring branding strategy, licensing frameworks, and AI-powered curation intelligence.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
