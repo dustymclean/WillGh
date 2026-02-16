@@ -1,0 +1,86 @@
+# --- Git Workflow ---
+alias gs='git status'
+alias ga='git add .'
+alias gc='git commit -m'        # Usage: gc "your message"
+alias gp='git push origin main'
+alias gpf='git push origin main --force'
+alias grb='git fetch origin && git rebase origin/main'
+
+# --- Repo Connection ---
+alias gset='git remote set-url origin' # Usage: gset [url]
+alias gconn='git remote add origin'     # Usage: gconn [url]
+
+# --- Deployment ---
+alias deploy='npm run deploy'
+alias build='npm run build'
+alias install='npm install'
+
+# --- Navigation & Utilities ---
+alias zconfig='nano ~/.zshrc'   # Quick access to edit this file
+alias reload='source ~/.zshrc' # Apply changes immediately
+	
+# --- 1. ENVIRONMENT & PATHS ---
+export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
+. "$HOME/.local/bin/env"
+
+# Bun & NVM
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"
+[ -s "/Users/obws.dusty/.bun/_bun" ] && source "/Users/obws.dusty/.bun/_bun"
+
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+
+# --- 2. BASIC ALIASES ---
+alias ..="cd .."
+alias ...="cd ../.."
+alias dl="cd ~/Downloads"
+alias dt="cd ~/Desktop"
+alias docs="cd ~/Documents"
+alias cls="clear"
+alias path='echo $PATH | tr ":" "\n"'
+alias ip="curl ifconfig.me"
+alias reload="source ~/.zshrc"
+
+# Git Basics
+alias gs="git status"
+alias ga="git add ."
+alias gc="git commit -m"
+alias gp="git push"
+alias gl="git pull"
+alias dogone='git branch --merged | grep -v "\*" | xargs -n 1 git branch -d'
+
+# Project Shortcuts
+alias mynode="cd ~/Downloads/MyNode.us.com"
+alias obws="cd ~/Documents/OBWS_Projects"
+
+# --- 3. THE DO-SUITE (Functions) ---
+
+# Git & Deployment
+dorelink() { git init && git remote add origin "$1" && git checkout -b main && git fetch origin && echo "🔗 Linked to $1"; }
+doclean() { echo "🧹 Cleaning..."; rm -rf node_modules dist .vite bun.lockb package-lock.json && bun install --legacy-peer-deps && echo "✨ Fresh environment ready."; }
+doverify() { bun run build && bun run preview; }
+dothree() { git add . && git commit -m "Vibe update: $(date +'%Y-%m-%d %H:%M')" && git pull --rebase origin main && git push origin main && echo "💾 Source synced to main."; }
+dofresh() { echo "🚀 Deploying..."; bun run build && git add dist -f && git commit -m "Production Build" && git subtree push --prefix dist origin gh-pages && echo "🌎 Site is LIVE."; }
+dofullsend() { dothree && dofresh; }
+dorepair() { echo "⚠️ Resetting to remote..."; git fetch origin && git reset --hard origin/main && echo "🚑 Repo repaired."; }
+
+# Diagnostics
+dohealth() { if [ -d "dist" ]; then ls -la dist/assets; else echo "❌ Error: dist missing."; fi; }
+doctorsite() { echo "🩺 Checking Vite Config..."; grep "base:" vite.config.* || echo "⚠️ Warning: No relative base path found."; [ -f "dist/.nojekyll" ] || touch dist/.nojekyll; }
+
+# Specialist Tools
+dotrace() { mkdir -p "$1"/{evidence,logs,screenshots} && touch "$1/notes.md" && cd "$1" && echo "🕵️ Trace initialized."; }
+dogrant() { mkdir -p "$1"/{RFP,Budget,Compliance,Drafts} && echo "🏛️ Grant scaffold ready."; }
+doproduct() { mkdir -p "$1"/{raw_photos,web_optimized} && echo "🧼 Product pipeline ready."; }
+doschool() { echo "| $(date +%F) | $1 |" >> ~/Documents/homeschool_log.md && echo "✅ Logged."; }
+dosecret() { openssl rand -hex 32 | pbcopy && echo "🔐 32-byte secret copied to clipboard."; }
+
+# AI Context: Use this to feed code to Gemini
+docopy() { 
+    tree -I 'node_modules|dist|.git' > /tmp/ctx.txt
+    find . -maxdepth 2 -name "*.*" ! -path "*/.*" -exec echo "--- {} ---" \; -exec cat {} \; >> /tmp/ctx.txt
+    cat /tmp/ctx.txt | pbcopy
+    echo "📋 Context copied for AI."
+}
