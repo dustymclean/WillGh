@@ -1,9 +1,8 @@
 {
-  "name": "will's-place---professional-photography-suite",
+  "name": "willgh-photography-suite",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
-<<<<<<< HEAD
   "homepage": "https://willgh.com",
   "scripts": {
     "dev": "vite",
@@ -11,12 +10,6 @@
     "preview": "vite preview",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d dist"
-=======
-  "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview"
->>>>>>> 03c73cf (Initialize sovereign photography suite and fix repo connection)
   },
   "dependencies": {
     "react-dom": "^19.2.4",
@@ -27,10 +20,7 @@
   "devDependencies": {
     "@types/node": "^22.14.0",
     "@vitejs/plugin-react": "^5.0.0",
-<<<<<<< HEAD
     "gh-pages": "^6.3.0",
-=======
->>>>>>> 03c73cf (Initialize sovereign photography suite and fix repo connection)
     "typescript": "~5.8.2",
     "vite": "^6.2.0"
   }
