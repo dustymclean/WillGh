@@ -1,7 +1,7 @@
 {
-  "name": "willgh-photography-suite",
+  "name": "will's-place---professional-photography-suite",
   "private": true,
-  "version": "1.0.0",
+  "version": "0.0.0",
   "type": "module",
   "homepage": "https://willgh.com",
   "scripts": {
@@ -18,6 +18,7 @@
     "lucide-react": "^0.564.0"
   },
   "devDependencies": {
+    "@types/node": "^22.14.0",
     "@vitejs/plugin-react": "^5.0.0",
     "gh-pages": "^6.3.0",
     "typescript": "~5.8.2",
