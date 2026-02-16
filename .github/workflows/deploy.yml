@@ -1,0 +1,4 @@
+- name: Build
+        run: npm run build
+        env:
+          VITE_GEMINI_API_KEY: ${{ AIzaSyAds9yfpv2cm7blgRZPwxplZ4rsiSdzdqA }}
