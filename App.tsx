@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import Header from './components/Header';
 import Home from './components/Home';
@@ -13,12 +12,12 @@ import ClientVault from './components/ClientVault';
 import VaporBackground from './components/VaporBackground';
 import TerminalLock from './components/TerminalLock';
 import { db, TransactionLog } from './services/SovereigntyGateway';
-import { PortfolioItem, View, Booking, Contract } from './types';
+import { PortfolioItem, View, Booking, Contract, Transaction, Task } from './types';
 
 const INITIAL_PORTFOLIO: PortfolioItem[] = [
   { id: '1', url: 'https://picsum.photos/seed/neo1/800/1200', title: 'Andean Geometric 01', category: 'Neo-Andean', description: 'A study in geometric balance.', date: '2026-03-15' },
   { id: '2', url: 'https://picsum.photos/seed/vapor1/800/1200', title: 'Sunset Echo', category: 'Portrait', description: 'Nostalgic portrait.', date: '2026-03-10' },
-  { id: '3', url: 'https://picsum.photos/seed/mag1/800/1200', title: 'Vogue: Neon Dream', category: 'Magazine', description: 'Editorial cover.', articleBody: 'The neon lights of the high Andes reflect a digital future we were promised in 1995. This spread explores the intersection of traditional weaving patterns and the glitch-aesthetics of early internet culture.', date: '2026-03-05' },
+  { id: '3', url: 'https://picsum.photos/seed/mag1/800/1200', title: 'Vogue: Neon Dream', category: 'Magazine', description: 'Editorial cover.', articleBody: 'The neon lights of the high Andes reflect a digital future we were promised in 1995.', date: '2026-03-05' },
 ];
 
 const App: React.FC = () => {
@@ -31,62 +30,69 @@ const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [logs, setLogs] = useState<TransactionLog[]>([]);
 
+  // Sovereign Node State Modules
   const [portfolio, setPortfolio] = useState<PortfolioItem[]>([]);
-  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [bookings, setBookings] = useState<Booking[]>([]); // "Clients"
   const [contracts, setContracts] = useState<Contract[]>([]);
+  const [transactions, setTransactions] = useState<Transaction[]>([]); // "Sovereign Ledger"
+  const [tasks, setTasks] = useState<Task[]>([]); // "To-Do List"
 
   useEffect(() => {
     db.setLogCallback(setLogs);
     
+    /**
+     * INITIALIZATION PROTOCOL
+     * Fetches all studio data and establishes Real-time subscriptions.
+     */
     const init = async () => {
       setIsLoading(true);
-      const [p, b, c] = await Promise.all([
-        db.fetchData('portfolio', INITIAL_PORTFOLIO),
-        db.fetchData('bookings', []),
-        db.fetchData('contracts', [])
-      ]);
-      setPortfolio(p);
-      setBookings(b);
-      setContracts(c);
-      setIsLoading(false);
+      try {
+        const [p, b, c, t, ts] = await Promise.all([
+          db.fetchData('portfolio', INITIAL_PORTFOLIO),
+          db.fetchData('bookings', []),
+          db.fetchData('contracts', []),
+          db.fetchData('transactions', []),
+          db.fetchData('tasks', []) // Fetching the new Task/To-Do data
+        ]);
 
-      // Setup Real-time Node Subscriptions
-      db.subscribe('portfolio', (payload) => {
-        if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
-          setPortfolio(prev => {
-            const exists = prev.find(i => i.id === payload.new.id);
-            if (exists) return prev.map(i => i.id === payload.new.id ? payload.new : i);
-            return [payload.new, ...prev];
-          });
-        }
-      });
+        setPortfolio(p);
+        setBookings(b);
+        setContracts(c);
+        setTransactions(t);
+        setTasks(ts);
 
-      db.subscribe('bookings', (payload) => {
-        if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
-          setBookings(prev => {
-            const exists = prev.find(b => b.id === payload.new.id);
-            if (exists) return prev.map(b => b.id === payload.new.id ? payload.new : b);
-            return [payload.new, ...prev];
-          });
-        }
-      });
+        // Establish Secure Real-time Node Subscriptions
+        const tables = ['portfolio', 'bookings', 'contracts', 'transactions', 'tasks'];
+        const setters = [setPortfolio, setBookings, setContracts, setTransactions, setTasks];
 
-      db.subscribe('contracts', (payload) => {
-        if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
-          setContracts(prev => {
-            const exists = prev.find(c => c.id === payload.new.id);
-            if (exists) return prev.map(c => c.id === payload.new.id ? payload.new : c);
-            return [payload.new, ...prev];
-          });
-        }
-      });
+        tables.forEach((table, index) => {
+          db.subscribe(table, (payload) => handleSub(payload, setters[index]));
+        });
+
+      } catch (err) {
+        console.error("Critical Node Handshake Failure:", err);
+      } finally {
+        setIsLoading(false);
+      }
     };
     init();
   }, []);
 
   /**
-   * Enhanced Sync Protocol: Handles both full-table syncs and granular row syncs
+   * Universal Handshake Handler: Updates state based on database events
    */
+  const handleSub = (payload: any, setter: any) => {
+    if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
+      setter((prev: any[]) => {
+        const exists = prev.find(i => i.id === payload.new.id);
+        if (exists) return prev.map(i => i.id === payload.new.id ? payload.new : i);
+        return [payload.new, ...prev];
+      });
+    } else if (payload.eventType === 'DELETE') {
+      setter((prev: any[]) => prev.filter(i => i.id !== payload.old.id));
+    }
+  };
+
   const syncToCloud = async (table: string, data: any) => {
     setIsSyncing(true);
     try {
@@ -98,36 +104,55 @@ const App: React.FC = () => {
     }
   };
 
-  const updatePortfolio = (newItems: PortfolioItem[]) => {
-    setPortfolio(newItems);
-    syncToCloud('portfolio', newItems);
-  };
+  // --- Persistent State Handlers ---
 
   const updateSinglePortfolioItem = (item: PortfolioItem) => {
-    setPortfolio(prev => prev.map(i => i.id === item.id ? item : i));
-    syncToCloud('portfolio', item); // Granular Row Sync
-  };
-
-  const updateBookings = (newBookings: Booking[]) => {
-    setBookings(newBookings);
-    syncToCloud('bookings', newBookings);
+    setPortfolio(prev => {
+      const exists = prev.find(i => i.id === item.id);
+      return exists ? prev.map(i => i.id === item.id ? item : i) : [item, ...prev];
+    });
+    syncToCloud('portfolio', item);
   };
 
   const updateSingleBooking = (booking: Booking) => {
-    setBookings(prev => prev.map(b => b.id === booking.id ? booking : b));
-    syncToCloud('bookings', booking); // Granular Row Sync
+    setBookings(prev => {
+      const exists = prev.find(b => b.id === booking.id);
+      return exists ? prev.map(b => b.id === booking.id ? booking : b) : [booking, ...prev];
+    });
+    syncToCloud('bookings', booking);
   };
 
-  const addBooking = (booking: Booking) => {
-    const updated = [booking, ...bookings];
-    setBookings(updated);
-    syncToCloud('bookings', booking); // Only transmit the new row
+  const addTransaction = (t: Transaction) => {
+    setTransactions(prev => [t, ...prev]);
+    syncToCloud('transactions', t);
+  };
+
+  const updateSingleTask = (task: Task) => {
+    setTasks(prev => {
+      const exists = prev.find(t => t.id === task.id);
+      return exists ? prev.map(t => t.id === task.id ? task : t) : [task, ...prev];
+    });
+    syncToCloud('tasks', task);
+  };
+
+  const deleteTask = (id: string) => {
+    setTasks(prev => prev.filter(t => t.id !== id));
+    syncToCloud('tasks', tasks.filter(t => t.id !== id));
   };
 
   const addContract = (contract: Contract) => {
-    const updated = [contract, ...contracts];
-    setContracts(updated);
-    syncToCloud('contracts', contract); // Only transmit the new row
+    setContracts(prev => [contract, ...prev]);
+    syncToCloud('contracts', contract);
+    
+    // Auto-generate Ledger entry for new deals
+    addTransaction({
+      id: `tx_deal_${contract.id}`,
+      date: contract.date,
+      amount: contract.totalValue,
+      category: 'Session',
+      description: `Sealed Contract: ${contract.clientName}`,
+      status: 'pending'
+    });
   };
 
   const handleLogout = () => {
@@ -161,17 +186,20 @@ const App: React.FC = () => {
       case 'home': return <Home onExplore={() => setView('portfolio')} onMagazine={() => setView('magazine')} />;
       case 'portfolio': return <Portfolio items={portfolio} />;
       case 'magazine': return <MagazineView items={portfolio.filter(i => i.category === 'Magazine' || i.category === 'Neo-Andean')} />;
-      case 'magazine-editor': return <MagazineEditor items={portfolio} onSave={updateSinglePortfolioItem} onBack={() => setView('admin')} />;
-      case 'booking': return <BookingView onBook={addBooking} />;
+      case 'magazine-editor': return <MagazineEditor items={portfolio} onSaveItem={updateSinglePortfolioItem} onBack={() => setView('admin')} />;
+      case 'booking': return <BookingView onBook={updateSingleBooking} />;
       case 'admin': return (
         <AdminDashboard 
           portfolio={portfolio} 
-          setPortfolio={updatePortfolio} 
-          bookings={bookings} 
-          updateBookings={updateBookings}
-          updateSingleBooking={updateSingleBooking}
-          setView={setView} 
+          bookings={bookings} // Clients
           contracts={contracts} 
+          transactions={transactions} // Sovereign Ledger
+          tasks={tasks} // To-Do List
+          updateSingleBooking={updateSingleBooking}
+          addTransaction={addTransaction}
+          updateSingleTask={updateSingleTask}
+          deleteTask={deleteTask}
+          setView={setView} 
           onLogout={handleLogout}
           logs={logs}
         />
@@ -179,8 +207,7 @@ const App: React.FC = () => {
       case 'culling': return (
         <CullingSuite 
           onSave={(items) => { 
-            const updated = [...items, ...portfolio];
-            updatePortfolio(updated); 
+            items.forEach(updateSinglePortfolioItem);
             setView('portfolio'); 
           }} 
         />

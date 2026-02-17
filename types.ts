@@ -1,4 +1,7 @@
-// src/types.ts
+/**
+ * WILL GHRIGSBY PHOTOGRAPHY // SOVEREIGN TYPES
+ * Comprehensive type definitions for the Node Archive, Ledger, and Intelligence Hub.
+ */
 
 export interface PortfolioItem {
   id: string;
@@ -8,13 +11,34 @@ export interface PortfolioItem {
   description: string;
   articleBody?: string;
   date: string;
+  layout?: 'Hero' | 'Grid' | 'Narrative';
 }
 
-export interface Message {
+// --- SOVEREIGN LEDGER (Financial / Total Revenue) ---
+export interface Transaction {
   id: string;
-  sender: 'client' | 'admin' | 'ai';
-  text: string;
-  timestamp: string;
+  date: string;
+  amount: number;
+  category: 'Session' | 'Print' | 'Licensing' | 'Workshop' | 'Other';
+  description: string;
+  clientId?: string;
+  status: 'pending' | 'cleared';
+}
+
+// --- SOVEREIGN TO-DO LIST ---
+export interface Task {
+  id: string;
+  task: string;
+  priority: 'Low' | 'Medium' | 'High' | 'Critical';
+  category: 'Shooting' | 'Editing' | 'Client' | 'Admin';
+  status: 'Pending' | 'In Progress' | 'Completed';
+  deadline?: string;
+}
+
+// --- CLIENT CRM / Frequency Channels ---
+export interface ContactChannel {
+  type: 'Instagram' | 'WhatsApp' | 'Email' | 'Phone';
+  value: string;
 }
 
 export interface Booking {
@@ -23,22 +47,24 @@ export interface Booking {
   email: string;
   date: string;
   package: string;
-  status: 'pending' | 'confirmed' | 'delivered';
+  status: 'pending' | 'confirmed' | 'delivered' | 'lead';
   vaultKey?: string;
   images?: string[]; 
   notes?: string; 
+  channels?: ContactChannel[];
+  socialIntelligence?: string; 
 }
 
-// --- NEW VAULT INTERFACE ---
+// --- ARTIFACT ARCHIVES (Archive Density) ---
 export interface Vault {
   id: string;
   created_at: string;
   client_name: string;
   client_email: string;
-  vault_key: string; // The secret key for client access
+  vault_key: string; 
   status: 'active' | 'expired' | 'locked';
   expires_at?: string;
-  images: string[]; // Array of URLs to their high-res photos
+  images: string[]; 
   booking_id?: string;
 }
 
@@ -49,14 +75,38 @@ export interface Contract {
   totalValue: number;
   signed: boolean;
   signatureData?: string;
+  clientId?: string;
 }
 
+// --- SYSTEM INTELLIGENCE & DEBUG ---
 export interface TransactionLog {
   id: string;
-  type: 'access' | 'change' | 'error';
-  message: string;
   timestamp: string;
+  method: 'GET' | 'POST' | 'PATCH' | 'DELETE' | 'SYNC';
+  endpoint: string;
+  status: 'SUCCESS' | 'SYNCING' | 'ERROR';
   details?: string;
+}
+
+export interface Message {
+  id: string;
+  sender: 'ai' | 'client' | 'admin';
+  text: string;
+  timestamp: string;
+}
+
+// --- METRIC DRILL-DOWN TYPES ---
+export interface ArchiveMetric {
+  category: string;
+  unitCount: number;
+  densityScore: number; // For visualization
+}
+
+export interface RevenueMetric {
+  totalRevenue: number;
+  clearedRevenue: number;
+  pendingRevenue: number;
+  categoryBreakdown: Record<string, number>;
 }
 
 export type View = 
