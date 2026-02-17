@@ -1,0 +1,8 @@
+
+{
+  "name": "Will Ghrigsby Photography",
+  "description": "A high-end photography portfolio and booking platform with a Neo-Andean Vaporwave aesthetic, featuring real-time portfolio management and AI-assisted client communication.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}

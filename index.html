@@ -1,0 +1,74 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Will Ghrigsby | Neo-Andean Vaporwave Photography</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;700&family=Syne:wght@400;700;800&family=Instrument+Serif:italic&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #0d0221;
+            color: #fce7f3;
+            font-family: 'Space+Grotesk', sans-serif;
+            overflow-x: hidden;
+        }
+        .vapor-text {
+            text-shadow: 2px 2px #ff00c1, -2px -2px #00fff9;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .andean-border {
+            border-image: linear-gradient(45deg, #ff00c1, #00fff9, #ff7b00) 1;
+        }
+        /* Film Grain effect */
+        .grain::after {
+            content: "";
+            position: fixed;
+            top: -100%;
+            left: -100%;
+            width: 300%;
+            height: 300%;
+            background-image: url("https://www.transparenttextures.com/patterns/stardust.png");
+            opacity: 0.05;
+            pointer-events: none;
+            z-index: 9999;
+            animation: grain 8s steps(10) infinite;
+        }
+        @keyframes grain {
+            0%, 100% { transform: translate(0, 0); }
+            10% { transform: translate(-5%, -10%); }
+            20% { transform: translate(-15%, 5%); }
+            30% { transform: translate(7%, -25%); }
+            40% { transform: translate(-5%, 25%); }
+            50% { transform: translate(-15%, 10%); }
+            60% { transform: translate(15%, 0); }
+            70% { transform: translate(0, 15%); }
+            80% { transform: translate(3%, 35%); }
+            90% { transform: translate(-10%, 10%); }
+        }
+        .gemstone-glow {
+            box-shadow: 0 0 20px rgba(255, 0, 193, 0.4), inset 0 0 20px rgba(0, 255, 249, 0.4);
+        }
+    </style>
+<script type="importmap">
+{
+  "imports": {
+    "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
+    "@google/genai": "https://esm.sh/@google/genai@^1.41.0",
+    "react": "https://esm.sh/react@^19.2.4",
+    "react/": "https://esm.sh/react@^19.2.4/"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+<body class="grain">
+    <div id="root"></div>
+<script type="module" src="/index.tsx"></script>
+</body>
+</html>
