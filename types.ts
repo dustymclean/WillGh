@@ -6,7 +6,7 @@ export interface PortfolioItem {
   title: string;
   category: 'Portrait' | 'Magazine' | 'Nature' | 'Neo-Andean';
   description: string;
-  articleBody?: string; // Long-form content for magazine pages
+  articleBody?: string;
   date: string;
 }
 
@@ -26,7 +26,20 @@ export interface Booking {
   status: 'pending' | 'confirmed' | 'delivered';
   vaultKey?: string;
   images?: string[]; 
-  notes?: string; // For client CRM communication
+  notes?: string; 
+}
+
+// --- NEW VAULT INTERFACE ---
+export interface Vault {
+  id: string;
+  created_at: string;
+  client_name: string;
+  client_email: string;
+  vault_key: string; // The secret key for client access
+  status: 'active' | 'expired' | 'locked';
+  expires_at?: string;
+  images: string[]; // Array of URLs to their high-res photos
+  booking_id?: string;
 }
 
 export interface Contract {
@@ -38,9 +51,6 @@ export interface Contract {
   signatureData?: string;
 }
 
-/**
- * Added to fix the SovereigntyGateway error
- */
 export interface TransactionLog {
   id: string;
   type: 'access' | 'change' | 'error';
